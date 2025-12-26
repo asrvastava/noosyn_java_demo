@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: onboarding-demo
+
+  jdbc:
+    url: 
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+server:
+  port: 3000
+  servlet:
+    context-path: /
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 36000000 # 10 hours in milliseconds

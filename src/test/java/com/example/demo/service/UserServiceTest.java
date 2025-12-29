@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.SignupRequest;
+import com.example.demo.dto.SignUpRequest;
 import com.example.demo.exception.AppException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
@@ -31,7 +31,7 @@ class UserServiceTest {
 
     @Test
     void shouldSignup() {
-        SignupRequest request = new SignupRequest("testuser", "password");
+        SignUpRequest request = new SignUpRequest("testuser", "password");
         when(userRepository.existsById("testuser")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
 
@@ -43,7 +43,7 @@ class UserServiceTest {
 
     @Test
     void shouldFailSignupWhenUserAlreadyExists() {
-        SignupRequest request = new SignupRequest("testuser", "password");
+        SignUpRequest request = new SignUpRequest("testuser", "password");
         when(userRepository.existsById("testuser")).thenReturn(true);
 
         assertThrows(AppException.class, () -> userService.signup(request));

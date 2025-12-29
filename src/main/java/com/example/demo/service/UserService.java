@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.SignupRequest;
+import com.example.demo.dto.SignUpRequest;
 import com.example.demo.exception.AppException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
@@ -17,7 +17,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void signup(SignupRequest signupRequest) {
+    public void signup(SignUpRequest signupRequest) {
         if (userRepository.existsById(signupRequest.username())) {
             throw new AppException("OD-06");
         }

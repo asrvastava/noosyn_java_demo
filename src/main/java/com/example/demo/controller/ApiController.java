@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.service.AuthService;
 import com.example.demo.dto.RoleRequest;
 import com.example.demo.dto.RoleFetch;
-import com.example.demo.dto.SigninRequest;
-import com.example.demo.dto.SignupRequest;
+import com.example.demo.dto.SignInRequest;
+import com.example.demo.dto.SignUpRequest;
 import com.example.demo.service.UserService;
 import com.example.demo.service.RoleService;
 import com.example.demo.exception.AppException;
@@ -30,13 +30,13 @@ public class ApiController {
 
 
     @PostMapping(ControllerUtil.SIGNUP)
-    public String signupUser(@RequestBody SignupRequest signupRequest) {
+    public String signupUser(@RequestBody SignUpRequest signupRequest) {
         userService.signup(signupRequest);
         return "User signed up successfully";
     }
     
     @PostMapping(ControllerUtil.LOGIN)
-    public String signinUser(@RequestBody SigninRequest signinRequest) {
+    public String signinUser(@RequestBody SignInRequest signinRequest) {
         return authService.authenticateAndGenerateToken(signinRequest.username(), signinRequest.password());
     }
 

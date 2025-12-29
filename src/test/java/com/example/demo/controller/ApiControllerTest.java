@@ -2,8 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.RoleFetch;
 import com.example.demo.dto.RoleRequest;
-import com.example.demo.dto.SigninRequest;
-import com.example.demo.dto.SignupRequest;
+import com.example.demo.dto.SignInRequest;
+import com.example.demo.dto.SignUpRequest;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.RoleService;
 import com.example.demo.service.UserService;
@@ -47,8 +47,8 @@ class ApiControllerTest {
 
     @Test
     void shouldSignupUser() throws Exception {
-        SignupRequest request = new SignupRequest("testuser", "password");
-        doNothing().when(userService).signup(any(SignupRequest.class));
+        SignUpRequest request = new SignUpRequest("testuser", "password");
+        doNothing().when(userService).signup(any(SignUpRequest.class));
 
         mockMvc.perform(post(ControllerUtil.SIGNUP)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +59,7 @@ class ApiControllerTest {
 
     @Test
     void shouldSigninUser() throws Exception {
-        SigninRequest request = new SigninRequest("testuser", "password");
+        SignInRequest request = new SignInRequest("testuser", "password");
         when(authService.authenticateAndGenerateToken("testuser", "password")).thenReturn("mock-token");
 
         mockMvc.perform(post(ControllerUtil.LOGIN)

@@ -10,7 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.example.demo.dto.error_dto.ApiErrorResponse;
+import com.example.demo.dto.ApiErrorResponse;
 
 import lombok.Builder;
 

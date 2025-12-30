@@ -8,17 +8,28 @@ import com.example.demo.service.AuthService;
 import com.example.demo.service.RoleService;
 import com.example.demo.service.UserService;
 import com.example.demo.util.ControllerUtil;
+import com.example.demo.util.JwtUtil;
+import com.example.demo.config.JwtAuthenticationFilter;
 import com.example.demo.config.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.IOException;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,9 +37,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ApiController.class)
+@WebMvcTest(AuthController.class)
 @Import(SecurityConfig.class)
-class ApiControllerTest {
+class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,8 +53,25 @@ class ApiControllerTest {
     @MockBean
     private AuthService authService;
 
+    @MockBean
+    private JwtUtil jwtUtil;
+    
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp() throws ServletException, IOException {
+        doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
+    }
 
     @Test
     void shouldSignupUser() throws Exception {
@@ -70,15 +98,13 @@ class ApiControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser", authorities = "ADMIN")
     void shouldGetUserRole() throws Exception {
         RoleFetch request = new RoleFetch("testuser");
-        String token = "valid-token";
         
-        when(authService.validateToken(token)).thenReturn(true);
         when(roleService.getRoleByUsername("testuser")).thenReturn("ADMIN");
 
         mockMvc.perform(get(ControllerUtil.ROLE)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -88,27 +114,21 @@ class ApiControllerTest {
     @Test
     void shouldFailGetUserRoleWhenUnauthorized() throws Exception {
         RoleFetch request = new RoleFetch("testuser");
-        String token = "invalid-token";
-
-        when(authService.validateToken(token)).thenReturn(false);
 
         mockMvc.perform(get(ControllerUtil.ROLE)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest()); // GlobalExceptionHandler handles AppException as BAD_REQUEST
+                .andExpect(status().isForbidden());
     }
 
     @Test
+    @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldCreateRole() throws Exception {
         RoleRequest request = new RoleRequest("ADMIN", "testuser");
-        String token = "valid-token";
-
-        when(authService.validateToken(token)).thenReturn(true);
+        
         doNothing().when(roleService).createRole("ADMIN", "testuser");
 
         mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

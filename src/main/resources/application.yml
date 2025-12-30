@@ -3,9 +3,9 @@ spring:
     name: onboarding-demo
 
   jdbc:
-    url: 
-    driver-class-name: org.h2.Driver
-    username: sa
+    url: jdbc:mysql://localhost:3306/demo_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
     password: password
 
 server:

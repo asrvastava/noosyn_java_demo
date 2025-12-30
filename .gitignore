@@ -1,0 +1,7 @@
+target/
+*.log
+.vscode/
+.idea/
+*.class
+*.jar
+*.war

@@ -1,4 +1,4 @@
-package com.noosyn.onboarding.repository;
+package com.example.demo.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +56,7 @@ class RoleServiceTest {
         Role role = new Role();
         role.setRoleName("ADMIN");
 
-        when(roleRepository.findByUserUsername("testuser")).thenReturn(Optional.of(role));
+        when(roleRepository.findByUserUsername("testuser")).thenReturn(List.of(role));
 
         String roleName = roleService.getRoleByUsername("testuser");
 
@@ -63,7 +65,7 @@ class RoleServiceTest {
 
     @Test
     void shouldFailGetRoleByUsernameWhenRoleNotFound() {
-        when(roleRepository.findByUserUsername("testuser")).thenReturn(Optional.empty());
+        when(roleRepository.findByUserUsername("testuser")).thenReturn(Collections.emptyList());
 
         assertThrows(AppException.class, () -> roleService.getRoleByUsername("testuser"));
     }

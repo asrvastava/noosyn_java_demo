@@ -16,10 +16,7 @@ import jakarta.validation.constraints.NotNull;
  * @param price the price of the product, represented as {@link BigDecimal}
  */
 public record ProductRequest(
-    @NotBlank(message = "ERR-200")
-    String name,
+        @NotBlank(message = com.example.demo.util.AppConstants.CODE_INVALID_PRODUCT_DATA) String name,
 
-    @NotNull(message = "ERR-200")
-    @DecimalMin(value = "0.0", message = "ERR-200")
-    BigDecimal price
-) {}
+        @NotNull(message = com.example.demo.util.AppConstants.CODE_INVALID_PRODUCT_DATA) @DecimalMin(value = "0.0", message = com.example.demo.util.AppConstants.CODE_INVALID_PRODUCT_DATA) BigDecimal price) {
+}

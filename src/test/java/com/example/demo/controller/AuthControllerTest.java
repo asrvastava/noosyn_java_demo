@@ -35,10 +35,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
+@Import({ SecurityConfig.class, com.example.demo.config.CustomAuthenticationEntryPoint.class })
 class AuthControllerTest {
 
     @Autowired
@@ -55,7 +56,7 @@ class AuthControllerTest {
 
     @MockBean
     private JwtUtil jwtUtil;
-    
+
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -101,7 +102,7 @@ class AuthControllerTest {
     @WithMockUser(username = "testuser", authorities = "ADMIN")
     void shouldGetUserRole() throws Exception {
         RoleFetch request = new RoleFetch("testuser");
-        
+
         when(roleService.getRoleByUsername("testuser")).thenReturn("ADMIN");
 
         mockMvc.perform(get(ControllerUtil.ROLE)
@@ -125,7 +126,7 @@ class AuthControllerTest {
     @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldCreateRole() throws Exception {
         RoleRequest request = new RoleRequest("ADMIN", "testuser");
-        
+
         doNothing().when(roleService).createRole("ADMIN", "testuser");
 
         mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
@@ -133,5 +134,17 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Role created successfully"));
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenTokenNotProvidedForProtectedResource() throws Exception {
+        RoleRequest request = new RoleRequest("ADMIN", "testuser");
+
+        mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Token not provided"))
+                .andExpect(jsonPath("$.errorCode").value(com.example.demo.util.AppConstants.VAL_TOKEN));
     }
 }

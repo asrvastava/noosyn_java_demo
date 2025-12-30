@@ -6,61 +6,55 @@ import com.example.demo.model.User;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @lombok.extern.slf4j.Slf4j
 public class UserService implements UserDetailsService {
 
-    private static final String USER_ALREADY_EXISTS_CODE = "OD-06";
-    private static final String USER_NOT_FOUND_CODE = "OD-02";
-    private static final String INVALID_PASSWORD_CODE = "OD-03";
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(SignUpRequest signupRequest) {
-        log.info("Attempting to sign up user: {}", signupRequest.username());
-        if (userRepository.existsById(signupRequest.username())) {
-            log.warn("User already exists: {}", signupRequest.username());
-            throw new AppException(USER_ALREADY_EXISTS_CODE);
+    public void signup(SignUpRequest request) {
+        log.info("Attempting to sign up user: {}", request.username());
+        if (userRepository.existsById(request.username())) {
+            log.warn("User already exists: {}", request.username());
+            throw new AppException(com.example.demo.util.AppConstants.CODE_USER_ALREADY_EXISTS);
         }
         User user = new User();
-        user.setUsername(signupRequest.username());
-        user.setPassword(passwordEncoder.encode(signupRequest.password()));
+        user.setUsername(request.username());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setEnabled(true);
         userRepository.save(user);
-        log.info("User registered successfully: {}", signupRequest.username());
+        log.info("User registered successfully: {}", request.username());
     }
 
     public User authenticate(String username, String password) {
         log.debug("Authenticating user: {}", username);
         User user = userRepository.findById(username)
-                .orElseThrow(() -> new AppException(USER_NOT_FOUND_CODE));
+                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.warn("Invalid password for user: {}", username);
-            throw new AppException(INVALID_PASSWORD_CODE);
+            throw new AppException("OD-03"); // Assuming OD-03 is not part of the requested change
         }
         return user;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username)
+            throws org.springframework.security.core.userdetails.UsernameNotFoundException {
         User user = userRepository.findById(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND));
 
-        List<SimpleGrantedAuthority> authorities = roleRepository.findByUserUsername(username).stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
-                .toList();
+        java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities = roleRepository
+                .findByUserUsername(username).stream()
+                .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority(role.getRoleName()))
+                .collect(java.util.stream.Collectors.toList());
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 authorities);

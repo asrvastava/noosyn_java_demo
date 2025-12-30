@@ -1,4 +1,7 @@
 package com.example.demo.dto;
 
-public record  RoleFetch(String username){}
+import jakarta.validation.constraints.NotBlank;
 
+public record RoleFetch(
+        @NotBlank(message = "VAL-USERNAME") String username) {
+}

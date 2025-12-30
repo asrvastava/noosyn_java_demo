@@ -1,4 +1,8 @@
 package com.example.demo.dto;
 
-public record RoleRequest(String username, String roleName) {
+import jakarta.validation.constraints.NotBlank;
+
+public record RoleRequest(
+        @NotBlank(message = "VAL-USERNAME") String username,
+        @NotBlank(message = "VAL-ROLENAME") String roleName) {
 }

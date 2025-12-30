@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 @lombok.RequiredArgsConstructor
 @lombok.extern.slf4j.Slf4j
 public class RoleService {
-    private static final String USER_NOT_FOUND_CODE = "OD-02";
-    private static final String ROLE_NOT_FOUND_CODE = "OD-04";
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
@@ -20,7 +18,7 @@ public class RoleService {
     public void createRole(String roleName, String username) {
         log.info("Creating role {} for user {}", roleName, username);
         User user = userRepository.findById(username)
-                .orElseThrow(() -> new AppException(USER_NOT_FOUND_CODE));
+                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND));
 
         Role role = new Role();
         role.setRoleName(roleName);
@@ -34,6 +32,6 @@ public class RoleService {
                 .stream()
                 .findFirst()
                 .map(Role::getRoleName)
-                .orElseThrow(() -> new AppException(ROLE_NOT_FOUND_CODE));
+                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_ROLE_NOT_FOUND));
     }
 }

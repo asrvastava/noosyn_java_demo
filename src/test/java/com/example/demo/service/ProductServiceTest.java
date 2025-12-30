@@ -100,18 +100,19 @@ class ProductServiceTest {
 
     @Test
     void shouldDeleteProduct() {
-        when(productRepository.existsById(1L)).thenReturn(true);
+        Product product = Product.builder().id(1L).name("Test Product").price(BigDecimal.TEN).build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         productService.deleteProduct(1L);
 
-        verify(productRepository, times(1)).deleteById(1L);
+        verify(productRepository, times(1)).delete(product);
     }
 
     @Test
     void shouldThrowExceptionWhenDeletingNonExistentProduct() {
-        when(productRepository.existsById(1L)).thenReturn(false);
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(AppException.class, () -> productService.deleteProduct(1L));
-        verify(productRepository, never()).deleteById(anyLong());
+        verify(productRepository, never()).delete(any(Product.class));
     }
 }

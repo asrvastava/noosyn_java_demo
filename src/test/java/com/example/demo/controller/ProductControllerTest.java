@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
-@Import(SecurityConfig.class)
+@Import({ SecurityConfig.class, com.example.demo.config.CustomAuthenticationEntryPoint.class })
 public class ProductControllerTest {
 
     @Autowired

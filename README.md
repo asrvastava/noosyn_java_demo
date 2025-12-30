@@ -1,22 +1,36 @@
-# Onboarding Demo Application
+# Noosyn Java Demo Application
 
-This is a Spring Boot based demo application for user onboarding, authentication, and role management. It uses JWT for security and an H2 in-memory database for data storage.
+This is a **Spring Boot 3.2** based application designed to demonstrate robust authentication, role-based access control (RBAC), and modern API development practices. It uses JWT for security, H2 for in-memory data storage, and includes features for observability and documentation.
 
-## Technologies Used
+## 🚀 Key Features
 
-- **Java:** 17
-- **Framework:** Spring Boot 3.2.1
-- **Build Tool:** Maven
-- **Database:** H2 (In-memory)
-- **Security:** Spring Security, JWT (JSON Web Tokens)
-- **Other Libraries:** Lombok, Spring Data JPA
+*   **Authentication & Security**: Secure user signup and signin using **JWT (JSON Web Tokens)** and **Spring Security**.
+*   **Role-Based Access Control (RBAC)**: Fine-grained permission management with `ADMIN` and `USER` roles.
+*   **Product Management**: CRUD operations for products, securing endpoints based on roles (Admins can create/update/delete, Users can view).
+*   **API Documentation**: Integrated **OpenAPI (Swagger UI)** for interactive API exploration and testing.
+*   **Observability**: **Spring Boot Actuator** enabled for health checks (`/actuator/health`) and metrics.
+*   **Centralized Configuration**:
+    *   Magic strings and error codes centralized in `AppConstants`.
+    *   Externalized JWT configuration via `JwtConfig`.
+    *   Global Exception Handling for consistent generic error responses.
+*   **Data Validation**: Comprehensive input validation using `@Valid` and custom error messages from `messages.properties`.
 
-## Prerequisites
+## 🛠️ Technologies Used
 
-- Java Development Kit (JDK) 17 or higher
-- Maven 3.6 or higher
+-   **Java:** 21
+-   **Framework:** Spring Boot 3.2.1
+-   **Build Tool:** Maven
+-   **Database:** H2 (In-memory)
+-   **Security:** Spring Security, JJWT (Basic support for JSON Web Token)
+-   **Documentation:** SpringDoc OpenAPI (Swagger UI)
+-   **Utilities:** Lombok, Spring Boot Actuator
 
-## Setup and Installation
+## 📋 Prerequisites
+
+-   Java Development Kit (JDK) 21
+-   Maven 3.6 or higher
+
+## ⚙️ Setup and Installation
 
 1.  **Clone the repository:**
     ```bash
@@ -33,112 +47,60 @@ This is a Spring Boot based demo application for user onboarding, authentication
     ```bash
     mvn spring-boot:run
     ```
-    Or run the generated JAR file:
-    ```bash
-    java -jar target/demo-0.0.1-SNAPSHOT.jar
-    ```
+    The application will start on port **3000**.
 
-The application will start on port **3000**.
+## 🖥️ API Documentation
 
-## Configuration
+Once the application is running, you can access the interactive Swagger UI documentation at:
 
-The application configuration is located in `src/main/resources/application.yml`.
+👉 **[http://localhost:3000/swagger-ui/swagger-ui.html](http://localhost:3000/swagger-ui/swagger-ui.html)**
 
-- **Server Port:** 3000
-- **Database URL:** `jdbc:h2:mem:testdb` (Default H2 URL if not specified, though `application.yml` has empty url, Spring Boot defaults usually apply or it might need fixing if it fails. *Note: The provided `application.yml` has an empty `url`, assuming standard H2 behavior or environment variable injection.*)
-- **H2 Console:** Enabled (usually at `/h2-console` if configured, check `application.yml` or add `spring.h2.console.enabled=true` if needed).
-- **JWT Secret:** Configured in `application.yml`.
-- **JWT Expiration:** 10 hours.
+This interface allows you to seeing all available endpoints, their request/response schemas, and even execute requests directly from the browser (Authentication is supported).
 
-## API Documentation
+## 🧪 Demo Showcase
 
-### Authentication
+A shell script `demo_showcase.sh` is provided to demonstrate the full workflow of the application, including:
+1.  Admin Signup & Login
+2.  Role Assignment
+3.  Product Creation (Admin)
+4.  Product Retrieval (User)
+5.  Access Control Tests (User fetching specific product, User trying to create product)
 
-The application uses JWT for authentication. Protected endpoints require the `Authorization` header with a Bearer token.
-
-**Header Format:**
-```
-Authorization: Bearer <your_jwt_token>
+**To run the demo:**
+```bash
+chmod +x demo_showcase.sh
+./demo_showcase.sh
 ```
 
-### Endpoints
-
-#### 1. User Signup
-Registers a new user.
-
-- **URL:** `/signup`
-- **Method:** `POST`
-- **Body:**
-  ```json
-  {
-    "username": "user1",
-    "password": "password123",
-    "email": "user1@example.com"
-  }
-  ```
-- **Response:** String message ("User signed up successfully")
-
-#### 2. User Signin (Login)
-Authenticates a user and returns a JWT token.
-
-- **URL:** `/signin`
-- **Method:** `POST`
-- **Body:**
-  ```json
-  {
-    "username": "user1",
-    "password": "password123"
-  }
-  ```
-- **Response:** JWT Token String
-
-#### 3. Create Role
-Creates a new role and assigns it to a user. **(Requires Authentication)**
-
-- **URL:** `/role_create`
-- **Method:** `POST`
-- **Headers:** `Authorization: Bearer <token>`
-- **Body:**
-  ```json
-  {
-    "roleName": "ADMIN",
-    "username": "user1"
-  }
-  ```
-- **Response:** String message ("Role created successfully")
-
-#### 4. Get User Role
-Retrieves the role of a specific user. **(Requires Authentication)**
-
-- **URL:** `/role`
-- **Method:** `GET`
-- **Headers:** `Authorization: Bearer <token>`
-- **Body:**
-  ```json
-  {
-    "username": "user1"
-  }
-  ```
-- **Response:** Role name (e.g., "ADMIN")
-
-## Database Access
-
-Since the application uses H2 in-memory database, the data is lost when the application stops.
-You can access the H2 console (if enabled) at `http://localhost:3000/h2-console`.
-- **JDBC URL:** `jdbc:h2:mem:testdb` (or as configured)
-- **User:** `sa`
-- **Password:** `password`
-
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 src/main/java/com/example/demo/
-├── config/          # Security configuration
-├── controller/      # REST Controllers
-├── dto/             # Data Transfer Objects
-├── exception/       # Global Exception Handling
-├── model/           # JPA Entities
+├── config/          # Configuration (Security, OpenAPI, JWT, Actuator)
+├── controller/      # REST Controllers (Auth, Product)
+├── dto/             # Data Transfer Objects (Request/Response records)
+├── exception/       # Global Exception Handling & Custom Exceptions
+├── model/           # JPA Entities (User, Role, Product)
 ├── repository/      # JPA Repositories
-├── service/         # Business Logic
-└── util/            # Utility classes (JWT, Constants)
+├── service/         # Business Logic (User, Role, Product, Auth)
+└── util/            # Utilities (JwtUtil, AppConstants)
+```
+
+## 🔒 Configuration Details
+
+The application configuration is located in `src/main/resources/application.yml`.
+
+-   **Server Port:** 3000
+-   **Database URL:** `jdbc:h2:mem:testdb`
+-   **H2 Console:** `/h2-console`
+-   **JWT Config:** Secrets and expiration are configurable properties.
+-   **Actuator:** Exposed at `/actuator`.
+
+## 🧪 Testing
+
+The project includes unit tests for controllers, services, and utilities.
+
+Run tests with:
+```bash
+mvn test
 ```

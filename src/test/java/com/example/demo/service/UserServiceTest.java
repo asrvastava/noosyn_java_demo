@@ -46,7 +46,9 @@ class UserServiceTest {
         SignUpRequest request = new SignUpRequest("testuser", "password");
         when(userRepository.existsById("testuser")).thenReturn(true);
 
-        assertThrows(AppException.class, () -> userService.signup(request));
+        AppException ex = assertThrows(AppException.class, () -> userService.signup(request));
+        assertEquals(com.example.demo.util.AppConstants.CODE_USER_ALREADY_EXISTS, ex.getErrorCode());
+
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -69,7 +71,8 @@ class UserServiceTest {
     void shouldFailAuthenticateWhenUserNotFound() {
         when(userRepository.findById("testuser")).thenReturn(Optional.empty());
 
-        assertThrows(AppException.class, () -> userService.authenticate("testuser", "password"));
+        AppException ex = assertThrows(AppException.class, () -> userService.authenticate("testuser", "password"));
+        assertEquals(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND, ex.getErrorCode());
     }
 
     @Test
@@ -81,6 +84,7 @@ class UserServiceTest {
         when(userRepository.findById("testuser")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongpassword", "encodedPassword")).thenReturn(false);
 
-        assertThrows(AppException.class, () -> userService.authenticate("testuser", "wrongpassword"));
+        AppException ex = assertThrows(AppException.class, () -> userService.authenticate("testuser", "wrongpassword"));
+        assertEquals(com.example.demo.util.AppConstants.CODE_INVALID_CREDENTIALS, ex.getErrorCode());
     }
 }

@@ -47,7 +47,8 @@ class RoleServiceTest {
     void shouldFailCreateRoleWhenUserNotFound() {
         when(userRepository.findById("testuser")).thenReturn(Optional.empty());
 
-        assertThrows(AppException.class, () -> roleService.createRole("ADMIN", "testuser"));
+        AppException ex = assertThrows(AppException.class, () -> roleService.createRole("ADMIN", "testuser"));
+        assertEquals(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND, ex.getErrorCode());
         verify(roleRepository, never()).save(any(Role.class));
     }
 
@@ -67,6 +68,7 @@ class RoleServiceTest {
     void shouldFailGetRoleByUsernameWhenRoleNotFound() {
         when(roleRepository.findByUserUsername("testuser")).thenReturn(Collections.emptyList());
 
-        assertThrows(AppException.class, () -> roleService.getRoleByUsername("testuser"));
+        AppException ex = assertThrows(AppException.class, () -> roleService.getRoleByUsername("testuser"));
+        assertEquals(com.example.demo.util.AppConstants.CODE_ROLE_NOT_FOUND, ex.getErrorCode());
     }
 }

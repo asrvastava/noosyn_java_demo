@@ -32,13 +32,14 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleAppException() {
-        AppException ex = new AppException("OD-02");
-        when(messageSource.getMessage(eq("OD-02"), any(), any(Locale.class))).thenReturn("User not found");
+        AppException ex = new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND);
+        when(messageSource.getMessage(eq(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND), any(),
+                any(Locale.class))).thenReturn("User not found");
 
         ResponseEntity<ApiErrorResponse> response = globalExceptionHandler.handleAppException(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("OD-02", response.getBody().errorCode());
+        assertEquals(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND, response.getBody().errorCode());
         assertEquals("User not found", response.getBody().message());
     }
 
@@ -46,15 +47,17 @@ class GlobalExceptionHandlerTest {
     void shouldHandleValidationException() {
         MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
         BindingResult bindingResult = mock(BindingResult.class);
-        FieldError fieldError = new FieldError("object", "field", "ERR-200");
-        
+        FieldError fieldError = new FieldError("object", "field",
+                com.example.demo.util.AppConstants.CODE_INVALID_PRODUCT_DATA);
+
         when(ex.getFieldError()).thenReturn(fieldError);
-        when(messageSource.getMessage(eq("ERR-200"), any(), any(Locale.class))).thenReturn("Invalid product data");
+        when(messageSource.getMessage(eq(com.example.demo.util.AppConstants.CODE_INVALID_PRODUCT_DATA), any(),
+                any(Locale.class))).thenReturn("Invalid product data");
 
         ResponseEntity<ApiErrorResponse> response = globalExceptionHandler.handleValidationException(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("ERR-200", response.getBody().errorCode());
+        assertEquals(com.example.demo.util.AppConstants.CODE_INVALID_PRODUCT_DATA, response.getBody().errorCode());
         assertEquals("Invalid product data", response.getBody().message());
     }
 }

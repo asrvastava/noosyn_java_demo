@@ -79,7 +79,8 @@ class ProductServiceTest {
     void shouldThrowExceptionWhenProductNotFoundById() {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(AppException.class, () -> productService.getProductById(1L));
+        AppException ex = assertThrows(AppException.class, () -> productService.getProductById(1L));
+        assertEquals(com.example.demo.util.AppConstants.CODE_PRODUCT_NOT_FOUND, ex.getErrorCode());
     }
 
     @Test
@@ -112,7 +113,8 @@ class ProductServiceTest {
     void shouldThrowExceptionWhenDeletingNonExistentProduct() {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(AppException.class, () -> productService.deleteProduct(1L));
+        AppException ex = assertThrows(AppException.class, () -> productService.deleteProduct(1L));
+        assertEquals(com.example.demo.util.AppConstants.CODE_PRODUCT_NOT_FOUND, ex.getErrorCode());
         verify(productRepository, never()).delete(any(Product.class));
     }
 }

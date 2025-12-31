@@ -9,6 +9,7 @@ public class ControllerUtil {
     public static final String ROLE_CREATE = ENDPOINT_PREFIX + "role_create";
     public static final String ROLE = ENDPOINT_PREFIX + "role";
     public static final String PRODUCT = ENDPOINT_PREFIX + "product";
+    public static final String PRODUCT_BY_ID = PRODUCT + "/{id}";
 
     private ControllerUtil() {
         // Private constructor to hide the implicit public one

@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
         log.error("An unexpected error occurred", ex);
         ApiErrorResponse body = ApiErrorResponse.builder()
-                .errorCode("ERR-500")
+                .errorCode(com.example.demo.util.AppConstants.CODE_INTERNAL_SERVER_ERROR)
                 .message(ex.getMessage()) // Leaking internal error for debugging
                 .timestamp(LocalDateTime.now())
                 .build();

@@ -23,6 +23,7 @@ public final class AppConstants {
     public static final String CODE_INVALID_PRODUCT_DATA = "ERR-200";
     public static final String CODE_PRODUCT_NOT_FOUND = "ERR-404";
     public static final String CODE_VALIDATION_FAILED = "ERR-VALIDATION";
+    public static final String CODE_INTERNAL_SERVER_ERROR = "ERR-500";
 
     // Validation Keys (VAL)
     public static final String VAL_USERNAME = "VAL-USERNAME";

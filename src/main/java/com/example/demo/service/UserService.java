@@ -40,7 +40,7 @@ public class UserService implements UserDetailsService {
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.warn("Invalid password for user: {}", username);
-            throw new AppException("OD-03"); // Assuming OD-03 is not part of the requested change
+            throw new AppException(com.example.demo.util.AppConstants.CODE_INVALID_CREDENTIALS);
         }
         return user;
     }

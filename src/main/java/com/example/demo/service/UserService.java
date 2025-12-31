@@ -23,7 +23,7 @@ public class UserService implements UserDetailsService {
         log.info("Attempting to sign up user: {}", request.username());
         if (userRepository.existsById(request.username())) {
             log.warn("User already exists: {}", request.username());
-            throw new AppException(com.example.demo.util.AppConstants.CODE_USER_ALREADY_EXISTS);
+            throw new AppException("OD-06");
         }
         User user = new User();
         user.setUsername(request.username());
@@ -36,11 +36,11 @@ public class UserService implements UserDetailsService {
     public User authenticate(String username, String password) {
         log.debug("Authenticating user: {}", username);
         User user = userRepository.findById(username)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException("OD-02"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.warn("Invalid password for user: {}", username);
-            throw new AppException(com.example.demo.util.AppConstants.CODE_INVALID_CREDENTIALS);
+            throw new AppException("OD-03");
         }
         return user;
     }
@@ -49,7 +49,7 @@ public class UserService implements UserDetailsService {
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {
         User user = userRepository.findById(username)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException("OD-02"));
 
         java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities = roleRepository
                 .findByUserUsername(username).stream()

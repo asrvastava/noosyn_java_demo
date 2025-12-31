@@ -48,7 +48,7 @@ class RoleServiceTest {
         when(userRepository.findById("testuser")).thenReturn(Optional.empty());
 
         AppException ex = assertThrows(AppException.class, () -> roleService.createRole("ADMIN", "testuser"));
-        assertEquals(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND, ex.getErrorCode());
+        assertEquals("OD-02", ex.getErrorCode());
         verify(roleRepository, never()).save(any(Role.class));
     }
 
@@ -69,6 +69,6 @@ class RoleServiceTest {
         when(roleRepository.findByUserUsername("testuser")).thenReturn(Collections.emptyList());
 
         AppException ex = assertThrows(AppException.class, () -> roleService.getRoleByUsername("testuser"));
-        assertEquals(com.example.demo.util.AppConstants.CODE_ROLE_NOT_FOUND, ex.getErrorCode());
+        assertEquals("OD-04", ex.getErrorCode());
     }
 }

@@ -30,7 +30,7 @@ public class AuthController {
     @PostMapping(ControllerUtil.SIGNUP)
     public String signupUser(@jakarta.validation.Valid @RequestBody SignUpRequest signupRequest) {
         userService.signup(signupRequest);
-        return messageSource.getMessage(com.example.demo.util.AppConstants.CODE_SUCCESS_SIGNUP, null,
+        return messageSource.getMessage("OD-07", null,
                 java.util.Locale.getDefault());
     }
 
@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping(ControllerUtil.ROLE_CREATE)
     public String createRole(@jakarta.validation.Valid @RequestBody RoleRequest roleRequest) {
         roleService.createRole(roleRequest.roleName(), roleRequest.username());
-        return messageSource.getMessage(com.example.demo.util.AppConstants.CODE_SUCCESS_ROLE_CREATE, null,
+        return messageSource.getMessage("OD-01", null,
                 java.util.Locale.getDefault());
     }
 }

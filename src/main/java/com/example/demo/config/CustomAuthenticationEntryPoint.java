@@ -28,7 +28,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             AuthenticationException authException)
             throws IOException, ServletException {
 
-        String errorCode = com.example.demo.util.AppConstants.VAL_TOKEN;
+        String errorCode = "VAL-TOKEN";
         String errorMessage = messageSource.getMessage(errorCode, null, Locale.getDefault());
 
         ApiErrorResponse errorResponse = ApiErrorResponse.builder()

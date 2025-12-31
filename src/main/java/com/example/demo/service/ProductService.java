@@ -47,14 +47,14 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new AppException("ERR-404"));
         return mapToResponse(product);
     }
 
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new AppException("ERR-404"));
 
         product.setName(request.name());
         product.setPrice(request.price());
@@ -66,7 +66,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new AppException("ERR-404"));
         productRepository.delete(product);
     }
 

@@ -1,5 +1,35 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.springframework.test.web.servlet.MvcResult;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.example.demo.config.JwtAuthenticationFilter;
 import com.example.demo.config.SecurityConfig;
 import com.example.demo.dto.PaginatedResponse;
@@ -9,32 +39,11 @@ import com.example.demo.service.ProductService;
 import com.example.demo.util.ControllerUtil;
 import com.example.demo.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
 @Import({ SecurityConfig.class, com.example.demo.config.CustomAuthenticationEntryPoint.class })
@@ -74,12 +83,21 @@ public class ProductControllerTest {
 
         when(productService.createProduct(any(ProductRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post(ControllerUtil.PRODUCT)
+        MvcResult result = mockMvc.perform(post(ControllerUtil.PRODUCT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("Test Product"));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        ProductResponse actualResponse = objectMapper.readValue(jsonResponse, ProductResponse.class);
+
+        assertNotNull(actualResponse);
+        assertEquals(1L, actualResponse.id());
+        assertEquals("Test Product", actualResponse.name());
+        assertEquals(BigDecimal.valueOf(100.0), actualResponse.price());
+
+        verify(productService).createProduct(any(ProductRequest.class));
     }
 
     @Test
@@ -90,9 +108,20 @@ public class ProductControllerTest {
 
         when(productService.getAllProducts(any(Pageable.class))).thenReturn(response);
 
-        mockMvc.perform(get(ControllerUtil.PRODUCT))
+        MvcResult result = mockMvc.perform(get(ControllerUtil.PRODUCT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items[0].name").value("Test Product"));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        // We need a TypeReference for generic types
+        PaginatedResponse<ProductResponse> actualResponse = objectMapper.readValue(jsonResponse, new com.fasterxml.jackson.core.type.TypeReference<PaginatedResponse<ProductResponse>>() {});
+
+        assertNotNull(actualResponse);
+        assertEquals(1, actualResponse.items().size());
+        assertEquals("Test Product", actualResponse.items().get(0).name());
+        assertEquals(1, actualResponse.totalItems());
+        
+        verify(productService).getAllProducts(any(Pageable.class));
     }
 
     @Test
@@ -102,9 +131,19 @@ public class ProductControllerTest {
 
         when(productService.getProductById(1L)).thenReturn(response);
 
-        mockMvc.perform(get(ControllerUtil.PRODUCT + "/1"))
+        MvcResult result = mockMvc.perform(get(ControllerUtil.PRODUCT + "/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Test Product"));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        ProductResponse actualResponse = objectMapper.readValue(jsonResponse, ProductResponse.class);
+
+        assertNotNull(actualResponse);
+        assertEquals(1L, actualResponse.id());
+        assertEquals("Test Product", actualResponse.name());
+        assertEquals(BigDecimal.valueOf(100.0), actualResponse.price());
+        
+        verify(productService).getProductById(1L);
     }
 
     @Test
@@ -115,11 +154,21 @@ public class ProductControllerTest {
 
         when(productService.updateProduct(eq(1L), any(ProductRequest.class))).thenReturn(response);
 
-        mockMvc.perform(put(ControllerUtil.PRODUCT + "/1")
+        MvcResult result = mockMvc.perform(put(ControllerUtil.PRODUCT + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Product"));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        ProductResponse actualResponse = objectMapper.readValue(jsonResponse, ProductResponse.class);
+
+        assertNotNull(actualResponse);
+        assertEquals(1L, actualResponse.id());
+        assertEquals("Updated Product", actualResponse.name());
+        assertEquals(BigDecimal.valueOf(150.0), actualResponse.price());
+        
+        verify(productService).updateProduct(eq(1L), any(ProductRequest.class));
     }
 
     @Test
@@ -127,8 +176,12 @@ public class ProductControllerTest {
     void shouldDeleteProduct() throws Exception {
         doNothing().when(productService).deleteProduct(1L);
 
-        mockMvc.perform(delete(ControllerUtil.PRODUCT + "/1"))
-                .andExpect(status().isNoContent());
+        MvcResult result = mockMvc.perform(delete(ControllerUtil.PRODUCT + "/1"))
+                .andReturn();
+
+        assertEquals(204, result.getResponse().getStatus());
+
+        verify(productService).deleteProduct(1L);
     }
 
     @Test
@@ -136,16 +189,20 @@ public class ProductControllerTest {
     void shouldFailCreateProductWhenUnauthorized() throws Exception {
         ProductRequest request = new ProductRequest("Test Product", BigDecimal.valueOf(100.0));
 
-        mockMvc.perform(post(ControllerUtil.PRODUCT)
+        MvcResult result = mockMvc.perform(post(ControllerUtil.PRODUCT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
+                .andReturn();
+
+        assertEquals(403, result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(username = "user", authorities = "USER")
     void shouldFailDeleteProductWhenUnauthorized() throws Exception {
-        mockMvc.perform(delete(ControllerUtil.PRODUCT + "/1"))
-                .andExpect(status().isForbidden());
+        MvcResult result = mockMvc.perform(delete(ControllerUtil.PRODUCT + "/1"))
+                .andReturn();
+
+        assertEquals(403, result.getResponse().getStatus());
     }
 }

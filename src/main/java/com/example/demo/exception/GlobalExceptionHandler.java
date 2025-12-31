@@ -49,14 +49,14 @@ public class GlobalExceptionHandler {
         // Extract error code set in the DTO annotation
         String errorCode = java.util.Optional.ofNullable(ex.getFieldError())
                 .map(org.springframework.validation.FieldError::getDefaultMessage)
-                .orElse(com.example.demo.util.AppConstants.CODE_VALIDATION_FAILED);
+                .orElse("ERR-VALIDATION");
 
         // Get error message from message.properties
         String errorMessage;
         try {
             errorMessage = messageSource.getMessage(errorCode, new Object[] {}, Locale.getDefault());
         } catch (NoSuchMessageException e) {
-            errorMessage = messageSource.getMessage(com.example.demo.util.AppConstants.CODE_VALIDATION_FAILED,
+            errorMessage = messageSource.getMessage("ERR-VALIDATION",
                     null, "Validation failed", Locale.getDefault());
         }
 
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
         log.error("An unexpected error occurred", ex);
         ApiErrorResponse body = ApiErrorResponse.builder()
-                .errorCode(com.example.demo.util.AppConstants.CODE_INTERNAL_SERVER_ERROR)
+                .errorCode("ERR-500")
                 .message(ex.getMessage()) // Leaking internal error for debugging
                 .timestamp(LocalDateTime.now())
                 .build();

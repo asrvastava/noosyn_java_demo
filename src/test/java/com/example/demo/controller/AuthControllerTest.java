@@ -18,6 +18,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -79,11 +82,15 @@ class AuthControllerTest {
         SignUpRequest request = new SignUpRequest("testuser", "password");
         doNothing().when(userService).signup(any(SignUpRequest.class));
 
-        mockMvc.perform(post(ControllerUtil.SIGNUP)
+        MvcResult result = mockMvc.perform(post(ControllerUtil.SIGNUP)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("User signed up successfully"));
+                .andReturn();
+
+        assertEquals("User signed up successfully", result.getResponse().getContentAsString());
+
+        verify(userService).signup(any(SignUpRequest.class));
     }
 
     @Test
@@ -91,11 +98,15 @@ class AuthControllerTest {
         SignInRequest request = new SignInRequest("testuser", "password");
         when(authService.authenticateAndGenerateToken("testuser", "password")).thenReturn("mock-token");
 
-        mockMvc.perform(post(ControllerUtil.LOGIN)
+        MvcResult result = mockMvc.perform(post(ControllerUtil.LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("mock-token"));
+                .andReturn();
+
+        assertEquals("mock-token", result.getResponse().getContentAsString());
+
+        verify(authService).authenticateAndGenerateToken("testuser", "password");
     }
 
     @Test
@@ -105,46 +116,65 @@ class AuthControllerTest {
 
         when(roleService.getRoleByUsername("testuser")).thenReturn("ADMIN");
 
-        mockMvc.perform(get(ControllerUtil.ROLE)
+        MvcResult result = mockMvc.perform(get(ControllerUtil.ROLE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("ADMIN"));
+                .andReturn();
+
+        assertEquals("ADMIN", result.getResponse().getContentAsString());
+
+        verify(roleService).getRoleByUsername("testuser");
     }
 
     @Test
     void shouldFailGetUserRoleWhenUnauthorized() throws Exception {
         RoleFetch request = new RoleFetch("testuser");
 
-        mockMvc.perform(get(ControllerUtil.ROLE)
+        MvcResult result = mockMvc.perform(get(ControllerUtil.ROLE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
+                .andReturn();
+
+        assertEquals(403, result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldCreateRole() throws Exception {
-        RoleRequest request = new RoleRequest("ADMIN", "testuser");
+        RoleRequest request = new RoleRequest("testuser", "ADMIN");
 
         doNothing().when(roleService).createRole("ADMIN", "testuser");
 
-        mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
+        MvcResult result = mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Role created successfully"));
+                .andReturn();
+
+        assertEquals("Role created successfully", result.getResponse().getContentAsString());
+
+        verify(roleService).createRole("ADMIN", "testuser");
     }
 
     @Test
     void shouldReturnForbiddenWhenTokenNotProvidedForProtectedResource() throws Exception {
-        RoleRequest request = new RoleRequest("ADMIN", "testuser");
+        RoleRequest request = new RoleRequest("testuser", "ADMIN");
 
-        mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
+        MvcResult result = mockMvc.perform(post(ControllerUtil.ROLE_CREATE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("Token not provided"))
-                .andExpect(jsonPath("$.errorCode").value(com.example.demo.util.AppConstants.VAL_TOKEN));
+                .andReturn();
+
+        assertEquals(403, result.getResponse().getStatus());
+        
+        String jsonResponse = result.getResponse().getContentAsString();
+        // Assuming ApiErrorResponse or similar structure, but here we can just check the string or map
+        // Since we don't have the exact error response class handy in the test context (it might be ApiErrorResponse), 
+        // let's read it as a Map or JsonNode to assert fields.
+        com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        
+        assertEquals("Token not provided", jsonNode.get("message").asText());
+        assertEquals("VAL-TOKEN", jsonNode.get("errorCode").asText());
     }
 }

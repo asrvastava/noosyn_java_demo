@@ -18,7 +18,7 @@ public class RoleService {
     public void createRole(String roleName, String username) {
         log.info("Creating role {} for user {}", roleName, username);
         User user = userRepository.findById(username)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException("OD-02"));
 
         Role role = new Role();
         role.setRoleName(roleName);
@@ -32,6 +32,6 @@ public class RoleService {
                 .stream()
                 .findFirst()
                 .map(Role::getRoleName)
-                .orElseThrow(() -> new AppException(com.example.demo.util.AppConstants.CODE_ROLE_NOT_FOUND));
+                .orElseThrow(() -> new AppException("OD-04"));
     }
 }

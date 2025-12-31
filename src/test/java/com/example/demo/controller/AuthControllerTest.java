@@ -41,6 +41,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for AuthController.
+ * Verifies functionality for user signup, login, and role management.
+ */
 @WebMvcTest(AuthController.class)
 @Import({ SecurityConfig.class, com.example.demo.config.CustomAuthenticationEntryPoint.class })
 class AuthControllerTest {
@@ -77,6 +81,9 @@ class AuthControllerTest {
         }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
     }
 
+    /**
+     * Test case for successful user signup.
+     */
     @Test
     void shouldSignupUser() throws Exception {
         SignUpRequest request = new SignUpRequest("testuser", "password");
@@ -93,6 +100,9 @@ class AuthControllerTest {
         verify(userService).signup(any(SignUpRequest.class));
     }
 
+    /**
+     * Test case for successful user signin.
+     */
     @Test
     void shouldSigninUser() throws Exception {
         SignInRequest request = new SignInRequest("testuser", "password");
@@ -109,6 +119,9 @@ class AuthControllerTest {
         verify(authService).authenticateAndGenerateToken("testuser", "password");
     }
 
+    /**
+     * Test case for fetching user role with valid authorization.
+     */
     @Test
     @WithMockUser(username = "testuser", authorities = "ADMIN")
     void shouldGetUserRole() throws Exception {
@@ -127,6 +140,9 @@ class AuthControllerTest {
         verify(roleService).getRoleByUsername("testuser");
     }
 
+    /**
+     * Test case for failing to fetch user role without authorization.
+     */
     @Test
     void shouldFailGetUserRoleWhenUnauthorized() throws Exception {
         RoleFetch request = new RoleFetch("testuser");
@@ -139,6 +155,9 @@ class AuthControllerTest {
         assertEquals(403, result.getResponse().getStatus());
     }
 
+    /**
+     * Test case for creating a role with admin authorization.
+     */
     @Test
     @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldCreateRole() throws Exception {
@@ -157,6 +176,10 @@ class AuthControllerTest {
         verify(roleService).createRole("ADMIN", "testuser");
     }
 
+    /**
+     * Test case to verify forbidden response when token is missing for protected
+     * resource.
+     */
     @Test
     void shouldReturnForbiddenWhenTokenNotProvidedForProtectedResource() throws Exception {
         RoleRequest request = new RoleRequest("testuser", "ADMIN");
@@ -167,13 +190,15 @@ class AuthControllerTest {
                 .andReturn();
 
         assertEquals(403, result.getResponse().getStatus());
-        
+
         String jsonResponse = result.getResponse().getContentAsString();
-        // Assuming ApiErrorResponse or similar structure, but here we can just check the string or map
-        // Since we don't have the exact error response class handy in the test context (it might be ApiErrorResponse), 
+        // Assuming ApiErrorResponse or similar structure, but here we can just check
+        // the string or map
+        // Since we don't have the exact error response class handy in the test context
+        // (it might be ApiErrorResponse),
         // let's read it as a Map or JsonNode to assert fields.
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-        
+
         assertEquals("Token not provided", jsonNode.get("message").asText());
         assertEquals("VAL-TOKEN", jsonNode.get("errorCode").asText());
     }

@@ -21,6 +21,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for GlobalExceptionHandler.
+ * Verifies correct handling of exceptions and error response generation.
+ */
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
 
@@ -30,6 +34,9 @@ class GlobalExceptionHandlerTest {
     @InjectMocks
     private GlobalExceptionHandler globalExceptionHandler;
 
+    /**
+     * Test case for handling AppException.
+     */
     @Test
     void shouldHandleAppException() {
         AppException ex = new AppException("OD-02");
@@ -43,6 +50,9 @@ class GlobalExceptionHandlerTest {
         assertEquals("User not found", response.getBody().message());
     }
 
+    /**
+     * Test case for handling MethodArgumentNotValidException.
+     */
     @Test
     void shouldHandleValidationException() {
         MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);

@@ -24,6 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for ProductService.
+ * Verifies business logic for product management.
+ */
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
@@ -33,6 +37,9 @@ class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
+    /**
+     * Test case for creating a product.
+     */
     @Test
     void shouldCreateProduct() {
         ProductRequest request = new ProductRequest("Test Product", BigDecimal.TEN);
@@ -48,6 +55,9 @@ class ProductServiceTest {
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
+    /**
+     * Test case for retrieving all products.
+     */
     @Test
     void shouldGetAllProducts() {
         Product product = Product.builder().id(1L).name("Test Product").price(BigDecimal.TEN).build();
@@ -63,6 +73,9 @@ class ProductServiceTest {
         assertEquals("Test Product", response.items().get(0).name());
     }
 
+    /**
+     * Test case for retrieving a product by ID.
+     */
     @Test
     void shouldGetProductById() {
         Product product = Product.builder().id(1L).name("Test Product").price(BigDecimal.TEN).build();
@@ -75,6 +88,9 @@ class ProductServiceTest {
         assertEquals("Test Product", response.name());
     }
 
+    /**
+     * Test case for failing to retrieve a non-existent product.
+     */
     @Test
     void shouldFailWhenProductNotFoundById() {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
@@ -83,6 +99,9 @@ class ProductServiceTest {
         assertEquals("ERR-404", ex.getErrorCode());
     }
 
+    /**
+     * Test case for updating a product.
+     */
     @Test
     void shouldUpdateProduct() {
         ProductRequest request = new ProductRequest("Updated Product", BigDecimal.valueOf(20));
@@ -99,6 +118,9 @@ class ProductServiceTest {
         assertEquals(BigDecimal.valueOf(20), response.price());
     }
 
+    /**
+     * Test case for deleting a product.
+     */
     @Test
     void shouldDeleteProduct() {
         Product product = Product.builder().id(1L).name("Test Product").price(BigDecimal.TEN).build();
@@ -109,6 +131,9 @@ class ProductServiceTest {
         verify(productRepository, times(1)).delete(product);
     }
 
+    /**
+     * Test case for failing to delete a non-existent product.
+     */
     @Test
     void shouldFailWhenDeletingNonExistentProduct() {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());

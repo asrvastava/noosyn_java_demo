@@ -16,6 +16,10 @@ import com.example.demo.dto.ApiErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Global exception handler for the application.
+ * Captures and handles exceptions thrown across the application.
+ */
 @ControllerAdvice
 @RequiredArgsConstructor
 @Slf4j
@@ -23,6 +27,12 @@ public class GlobalExceptionHandler {
 
     private final MessageSource messageSource;
 
+    /**
+     * Handles AppException.
+     *
+     * @param ex the AppException
+     * @return a response entity containing the error details
+     */
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiErrorResponse> handleAppException(AppException ex) {
         log.error("AppException occurred: {}", ex.getMessage());
@@ -43,6 +53,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    /**
+     * Handles MethodArgumentNotValidException (validation errors).
+     *
+     * @param ex the MethodArgumentNotValidException
+     * @return a response entity containing the validation error details
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         log.error("Validation error: {}", ex.getMessage());
@@ -69,6 +85,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    /**
+     * Handles generic Exception.
+     *
+     * @param ex the Exception
+     * @return a response entity containing the generic error details
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
         log.error("An unexpected error occurred", ex);

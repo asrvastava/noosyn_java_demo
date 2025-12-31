@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.demo.config.JwtAuthenticationFilter;
@@ -45,9 +45,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Integration tests for ProductController.
+ * Verifies functionality for product management endpoints.
+ */
 @WebMvcTest(ProductController.class)
 @Import({ SecurityConfig.class, com.example.demo.config.CustomAuthenticationEntryPoint.class })
-public class ProductControllerTest {
+class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,6 +79,9 @@ public class ProductControllerTest {
         }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
     }
 
+    /**
+     * Test case for creating a product with admin authorization.
+     */
     @Test
     @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldCreateProduct() throws Exception {
@@ -100,6 +107,9 @@ public class ProductControllerTest {
         verify(productService).createProduct(any(ProductRequest.class));
     }
 
+    /**
+     * Test case for retrieving all products with user authorization.
+     */
     @Test
     @WithMockUser(username = "user", authorities = "USER")
     void shouldGetAllProducts() throws Exception {
@@ -114,16 +124,21 @@ public class ProductControllerTest {
 
         String jsonResponse = result.getResponse().getContentAsString();
         // We need a TypeReference for generic types
-        PaginatedResponse<ProductResponse> actualResponse = objectMapper.readValue(jsonResponse, new com.fasterxml.jackson.core.type.TypeReference<PaginatedResponse<ProductResponse>>() {});
+        PaginatedResponse<ProductResponse> actualResponse = objectMapper.readValue(jsonResponse,
+                new com.fasterxml.jackson.core.type.TypeReference<PaginatedResponse<ProductResponse>>() {
+                });
 
         assertNotNull(actualResponse);
         assertEquals(1, actualResponse.items().size());
         assertEquals("Test Product", actualResponse.items().get(0).name());
         assertEquals(1, actualResponse.totalItems());
-        
+
         verify(productService).getAllProducts(any(Pageable.class));
     }
 
+    /**
+     * Test case for retrieving a product by ID.
+     */
     @Test
     @WithMockUser(username = "user", authorities = "USER")
     void shouldGetProductById() throws Exception {
@@ -142,10 +157,13 @@ public class ProductControllerTest {
         assertEquals(1L, actualResponse.id());
         assertEquals("Test Product", actualResponse.name());
         assertEquals(BigDecimal.valueOf(100.0), actualResponse.price());
-        
+
         verify(productService).getProductById(1L);
     }
 
+    /**
+     * Test case for updating a product with admin authorization.
+     */
     @Test
     @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldUpdateProduct() throws Exception {
@@ -167,10 +185,13 @@ public class ProductControllerTest {
         assertEquals(1L, actualResponse.id());
         assertEquals("Updated Product", actualResponse.name());
         assertEquals(BigDecimal.valueOf(150.0), actualResponse.price());
-        
+
         verify(productService).updateProduct(eq(1L), any(ProductRequest.class));
     }
 
+    /**
+     * Test case for deleting a product with admin authorization.
+     */
     @Test
     @WithMockUser(username = "admin", authorities = "ADMIN")
     void shouldDeleteProduct() throws Exception {
@@ -184,6 +205,9 @@ public class ProductControllerTest {
         verify(productService).deleteProduct(1L);
     }
 
+    /**
+     * Test case for failing to create a product without admin authorization.
+     */
     @Test
     @WithMockUser(username = "user", authorities = "USER")
     void shouldFailCreateProductWhenUnauthorized() throws Exception {
@@ -197,6 +221,9 @@ public class ProductControllerTest {
         assertEquals(403, result.getResponse().getStatus());
     }
 
+    /**
+     * Test case for failing to delete a product without admin authorization.
+     */
     @Test
     @WithMockUser(username = "user", authorities = "USER")
     void shouldFailDeleteProductWhenUnauthorized() throws Exception {

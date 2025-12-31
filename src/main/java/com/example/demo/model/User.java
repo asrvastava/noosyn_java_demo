@@ -6,6 +6,10 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Entity class representing a user.
+ * Maps to the "users" table in the database.
+ */
 @Entity
 @Getter
 @Setter

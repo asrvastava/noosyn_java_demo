@@ -16,6 +16,10 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for JwtUtil.
+ * Verifies JWT token generation, extraction, and validation.
+ */
 @ExtendWith(MockitoExtension.class)
 class JwtUtilTest {
 
@@ -36,6 +40,9 @@ class JwtUtilTest {
         jwtUtil.init();
     }
 
+    /**
+     * Test case for generating a valid token.
+     */
     @Test
     void shouldGenerateValidToken() {
         when(jwtConfig.getExpiration()).thenReturn(EXPIRATION);
@@ -46,6 +53,9 @@ class JwtUtilTest {
         assertTrue(token.length() > 0);
     }
 
+    /**
+     * Test case for extracting username from token.
+     */
     @Test
     void shouldExtractUsernameFromToken() {
         when(jwtConfig.getExpiration()).thenReturn(EXPIRATION);
@@ -57,6 +67,9 @@ class JwtUtilTest {
         assertEquals(username, extractedUsername);
     }
 
+    /**
+     * Test case for validating a valid token.
+     */
     @Test
     void shouldValidateTokenSuccessfully() {
         when(jwtConfig.getExpiration()).thenReturn(EXPIRATION);
@@ -68,6 +81,9 @@ class JwtUtilTest {
         assertTrue(isValid);
     }
 
+    /**
+     * Test case for failing to validate an invalid token.
+     */
     @Test
     void shouldFailValidationForInvalidToken() {
         String invalidToken = "invalid.token.string";

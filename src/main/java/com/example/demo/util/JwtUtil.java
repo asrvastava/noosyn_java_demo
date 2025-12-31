@@ -10,6 +10,10 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Base64;
 
+/**
+ * Utility class for JWT operations.
+ * Handles token generation, validation, and parsing.
+ */
 @Component
 @lombok.RequiredArgsConstructor
 public class JwtUtil {
@@ -28,6 +32,12 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     * Generates a JWT token for the given username.
+     *
+     * @param username the username to generate the token for
+     * @return the generated JWT token
+     */
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -37,6 +47,12 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+     * Validates a JWT token.
+     *
+     * @param token the JWT token to validate
+     * @return true if the token is valid, false otherwise
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -46,6 +62,12 @@ public class JwtUtil {
         }
     }
 
+    /**
+     * Extracts the username from a JWT token.
+     *
+     * @param token the JWT token
+     * @return the username extracted from the token
+     */
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

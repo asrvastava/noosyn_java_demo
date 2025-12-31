@@ -10,6 +10,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for user management and authentication.
+ * Handles user registration, authentication, and loading user details.
+ */
 @Service
 @RequiredArgsConstructor
 @lombok.extern.slf4j.Slf4j
@@ -19,6 +23,12 @@ public class UserService implements UserDetailsService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Registers a new user.
+     *
+     * @param request the request object containing user signup details
+     * @throws AppException if the user already exists
+     */
     public void signup(SignUpRequest request) {
         log.info("Attempting to sign up user: {}", request.username());
         if (userRepository.existsById(request.username())) {
@@ -33,6 +43,14 @@ public class UserService implements UserDetailsService {
         log.info("User registered successfully: {}", request.username());
     }
 
+    /**
+     * Authenticates a user by checking credentials.
+     *
+     * @param username the username of the user
+     * @param password the password of the user
+     * @return the authenticated user
+     * @throws AppException if the user is not found or the password is invalid
+     */
     public User authenticate(String username, String password) {
         log.debug("Authenticating user: {}", username);
         User user = userRepository.findById(username)
@@ -45,6 +63,18 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    /**
+     * Loads user details by username for Spring Security.
+     *
+     * @param username the username of the user
+     * @return the user details
+     * @throws org.springframework.security.core.userdetails.UsernameNotFoundException if
+     *                                                                                 the
+     *                                                                                 user
+     *                                                                                 is
+     *                                                                                 not
+     *                                                                                 found
+     */
     @Override
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {

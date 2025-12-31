@@ -10,6 +10,10 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Entity class representing a user role.
+ * Maps to the "roles" table in the database.
+ */
 @Entity
 @Getter
 @Setter
@@ -18,7 +22,7 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String roleName;
 
     @ManyToOne

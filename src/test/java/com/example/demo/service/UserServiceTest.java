@@ -17,6 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for UserService.
+ * Verifies business logic for user management and authentication.
+ */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -29,6 +33,9 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    /**
+     * Test case for user signup.
+     */
     @Test
     void shouldSignup() {
         SignUpRequest request = new SignUpRequest("testuser", "password");
@@ -41,6 +48,9 @@ class UserServiceTest {
         verify(passwordEncoder, times(1)).encode("password");
     }
 
+    /**
+     * Test case for failing to signup existing user.
+     */
     @Test
     void shouldFailSignupWhenUserAlreadyExists() {
         SignUpRequest request = new SignUpRequest("testuser", "password");
@@ -52,6 +62,9 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    /**
+     * Test case for user authentication.
+     */
     @Test
     void shouldAuthenticate() {
         User user = new User();
@@ -67,6 +80,9 @@ class UserServiceTest {
         assertEquals("testuser", result.getUsername());
     }
 
+    /**
+     * Test case for failing authentication when user is not found.
+     */
     @Test
     void shouldFailAuthenticateWhenUserNotFound() {
         when(userRepository.findById("testuser")).thenReturn(Optional.empty());
@@ -75,6 +91,9 @@ class UserServiceTest {
         assertEquals("OD-02", ex.getErrorCode());
     }
 
+    /**
+     * Test case for failing authentication with invalid credentials.
+     */
     @Test
     void shouldFailAuthenticateWhenInvalidCredentials() {
         User user = new User();

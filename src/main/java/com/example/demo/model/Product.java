@@ -13,6 +13,10 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * Entity class representing a product.
+ * Maps to the "products" table in the database.
+ */
 @Entity
 @Getter
 @Setter

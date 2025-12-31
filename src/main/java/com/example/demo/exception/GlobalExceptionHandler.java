@@ -56,7 +56,8 @@ public class GlobalExceptionHandler {
         try {
             errorMessage = messageSource.getMessage(errorCode, new Object[] {}, Locale.getDefault());
         } catch (NoSuchMessageException e) {
-            errorMessage = "Validation failed";
+            errorMessage = messageSource.getMessage(com.example.demo.util.AppConstants.CODE_VALIDATION_FAILED,
+                    null, "Validation failed", Locale.getDefault());
         }
 
         ApiErrorResponse body = ApiErrorResponse.builder()
